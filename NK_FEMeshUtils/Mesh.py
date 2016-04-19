@@ -1,8 +1,16 @@
-import FEMeshEntities
+from Node import Node as Node
+from Element import Element as Element
+from Tria import Tria as Tria
+from Quad import Quad as Quad
+from Material import Material as Material
+from Property import Property as Property
+from Part import Part as Part
+import numpy as np
 class Mesh:
+
     # This Class is handling FE Meshes
 
-    def __init__(self):
+    def __init__(self, _Meshfile, _Meshformat):
         # Variables for Mesh Import
         self.Nodelist={}
         self.Nodalthickness={}
@@ -13,13 +21,12 @@ class Mesh:
         self.Matlist={}
         self.Proplist={}
         self.PartObjList={}
-        self.TRBProps=[]
+        self.NUTProps=[] # Parts with non UniformThickness
+        self.Meshfile=_Meshfile
+        self.Meshformat=_Meshformat
 
-        self.Meshfile=""
-        self.Meshformat=""
-
-        self.logger=logging.getLogger('Mesh')
-        self.logger.info('Mesh Object initialized')
+        # self.logger=logging.getLogger('Mesh')
+        # self.logger.info('Mesh Object initialized')
 
     def addNode(self, NodeID, x, y, z):
         self.Nodelist[int(NodeID)]=[float(x), float(y), float(z)]
@@ -56,13 +63,13 @@ class Mesh:
         self.Proplist[int(PropID)]=[float(Thickness)]
 
     def InitPartObj(self, PartID):
-        self.logger.info('Initialize Part: '+str(PartID))
+        # self.logger.info('Initialize Part: '+str(PartID))
 
         if self.Nodelist=={}:
-            self.logger.error("Missing Nodes. Please check Input")
+            # self.logger.error("Missing Nodes. Please check Input")
             raise Exception("Missing Nodes. Please check Input")
         elif self.Elemlist=={}:
-            self.logger.error("Missing Elements. Please check Input")
+            # self.logger.error("Missing Elements. Please check Input")
             raise Exception("Missing Elements. Please check Input")
         else:
             matid = 0
@@ -72,16 +79,16 @@ class Mesh:
             thickness = 1.0
             propid=0
             matid=0
-            title="GenericPart"
+            title="GeneriPart"
 
-            if self.Matlist=={} :
-                self.logger.warning("Missing Material Definition. Please check Input. Steel Values in Ton mm s set as default")
+            # if self.Matlist=={} :
+                # self.logger.warning("Missing Material Definition. Please check Input. Steel Values in Ton mm s set as default")
 
-            if self.Proplist=={}:
-                self.logger.warning("Missing Property Definition. Please check Input. 1 mm constant used as default")
+            # if self.Proplist=={}:
+                # self.logger.warning("Missing Property Definition. Please check Input. 1 mm constant used as default")
 
-            if self.Partlist=={}:
-                self.logger.warning("Missing Part Definition. Please check Input. Generic Part will be created")
+            # if self.Partlist=={}:
+                # self.logger.warning("Missing Part Definition. Please check Input. Generic Part will be created")
 
             if self.Matlist!={} and self.Proplist!={} and self.Partlist=={}:
                 matid=self.Partlist[PartID][2]
@@ -92,7 +99,7 @@ class Mesh:
                 thickness=self.Proplist[propid][0]
 
             prop=Property(propid, thickness)
-            mat=Material(matid, rho, e)
+            mat=Material(matid, float(rho), float(e))
             part=Part(PartID, title, mat, prop)
 
             for elem in self.Elemlist.iteritems():
@@ -112,11 +119,11 @@ class Mesh:
                         tria=Tria(elem[0], elem[1][0], node1, node2, node3)
                         part.addElem(tria)
             self.PartObjList[PartID]=part
-            self.logger.info("Part "+str(part.getPartID())+" initialized with "+str(part.getNumElem())+" Elements.")
+            # self.logger.info("Part "+str(part.getPartID())+" initialized with "+str(part.getNumElem())+" Elements.")
         return part
 
     def InitAllObj(self):
-        self.logger.info("Initall started")
+        # self.logger.info("Initall started")
         for PartID, Partvalues in self.Partlist.iteritems():
             matid=Partvalues[2]
             propid=Partvalues[1]
@@ -128,34 +135,51 @@ class Mesh:
                 thickness=self.Proplist[propid][0]
 
                 prop=Property(propid, thickness)
-                mat=Material(matid, rho, e)
+                mat=Material(matid, float(rho), float(e))
 
                 part=Part(PartID, title, mat, prop)
-                self.logger.info("Part created: "+str(PartID))
+                # self.logger.info("Part created: "+str(PartID))
 
                 for elem in self.Elemlist.iteritems():
                     #print elem[0]
                     if elem[1][0] == PartID:
-                        if len(elem[1])==5:
-                            node1=Node(elem[1][1], self.Nodelist[elem[1][1]])
-                            node2=Node(elem[1][2], self.Nodelist[elem[1][2]])
-                            node3=Node(elem[1][3], self.Nodelist[elem[1][3]])
-                            node4=Node(elem[1][4], self.Nodelist[elem[1][4]])
+                        _elem = elem[1]
+                        if len(elem)==5:
+                            nodeid = _elem[1]
+                            coord = self.Nodelist[nodeid]
+                            node1=Node(nodeid, coord[0], coord[1], coord[2])
+                            nodeid = _elem[2]
+                            coord = self.Nodelist[nodeid]
+                            node2=Node(nodeid, coord[0], coord[1], coord[2])
+                            nodeid = _elem[3]
+                            coord = self.Nodelist[nodeid]
+                            node3=Node(nodeid, coord[0], coord[1], coord[2])
+                            nodeid = _elem[4]
+                            coord = self.Nodelist[nodeid]
+                            node4=Node(nodeid, coord[0], coord[1], coord[2])
+
                             quad=Quad(elem[0], elem[1][0], node1, node2, node3, node4)
                             part.addElem(quad)
-                        elif len(elem[1])==4:
-                            node1=Node(elem[1][1], self.Nodelist[elem[1][1]])
-                            node2=Node(elem[1][2], self.Nodelist[elem[1][2]])
-                            node3=Node(elem[1][3], self.Nodelist[elem[1][3]])
+                        elif len(elem)==4:
+                            nodeid = _elem[1]
+                            coord = self.Nodelist[nodeid]
+                            node1=Node(nodeid, coord[0], coord[1], coord[2])
+                            nodeid = _elem[2]
+                            coord = self.Nodelist[nodeid]
+                            node2=Node(nodeid, coord[0], coord[1], coord[2])
+                            nodeid = _elem[3]
+                            coord = self.Nodelist[nodeid]
+                            node3=Node(nodeid, coord[0], coord[1], coord[2])
+
                             tria=Tria(elem[0], elem[1][0], node1, node2, node3)
                             part.addElem(tria)
             self.PartObjList[PartID]=part
 
-    def setMeshFile(self,file):
-        self.Meshfile=file
+    def setMeshFile(self,_file):
+        self.Meshfile=_file
 
-    def setMeshFormat(self,format):
-        self.MeshFormat=format
+    def setMeshFormat(self,_format):
+        self.MeshFormat=_format
 
     def getMeshFormat(self):
         return self.MeshFormat
@@ -249,5 +273,5 @@ class Mesh:
         ymax=np.amax(Nodes['coord'][:,1])
         zmin=np.amin(Nodes['coord'][:,2])
         zmax=np.amax(Nodes['coord'][:,2])
-        self.logger.debug("Bounds of Outer Box: "+ str([xmin,xmax,ymin,ymax,zmin,zmax]))
+        # self.logger.debug("Bounds of Outer Box: "+ str([xmin,xmax,ymin,ymax,zmin,zmax]))
         return [xmin,xmax,ymin,ymax,zmin,zmax]

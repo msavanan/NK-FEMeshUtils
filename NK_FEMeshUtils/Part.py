@@ -1,6 +1,6 @@
 class Part:
     def __init__(self, PartID, title, Mat, Prop):
-        self.TRBbool=False
+        self.nonUniformThickness=False
         self.PartID=PartID
         self.Mat=Mat
         self.Prop=Prop
@@ -9,10 +9,11 @@ class Part:
         self.Elemlist={}
         self.Nodelist={}
 
+
     def addElem(self, Elem):
         self.ElemObj.append(Elem)
         self.Elemlist[Elem.getID()]=Elem
-        for node in Elem.getNodelist():
+        for node in Elem.getNodes():
             self.Nodelist[node.getID()]=node
 
     def getNumElem(self):
@@ -35,7 +36,7 @@ class Part:
 
     def getPartVolume(self):
         Volume=0.0
-        if self.isTRB():
+        if self.isNonUniformThickness():
             for elem in self.ElemObj:
                 Volume=Volume+elem.getVolume()
         else:
@@ -51,8 +52,8 @@ class Part:
     def getPartname(self):
         return self.title
 
-    def setTRB(self, _TRBbool):
-        self.TRBbool=_TRBbool
+    def setNonUniformThickness(self, nonUniformThickness):
+        self.nonUniformThickness=nonUniformThickness
 
-    def isTRB(self):
-        return self.TRBbool
+    def isNonUniformThickness(self):
+        return self.nonUniformThickness

@@ -1,4 +1,5 @@
 from Element import Element
+import numpy as np
 class Tria(Element):
     def __init__(self, ElemID, PartID, Node1, Node2, Node3):
         self.thickness = 0.0
@@ -17,6 +18,3 @@ class Tria(Element):
         b = np.array([self.Nodes[1].x, self.Nodes[1].y, self.Nodes[1].z])
         c = np.array([self.Nodes[2].x, self.Nodes[2].y, self.Nodes[2].z])
         return 0.5 * np.linalg.norm(np.cross(b-a, c-a ))
-
-    def getVolume(self):
-        return self.getArea()*self.thickness

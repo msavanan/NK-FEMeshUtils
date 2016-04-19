@@ -1,4 +1,5 @@
 from Element import Element
+import numpy as np
 class Quad(Element):
     def __init__(self, ElemID, PartID, Node1, Node2, Node3, Node4):
         self.thickness = 0.0
@@ -19,6 +20,3 @@ class Quad(Element):
         c = np.array([self.Node3.x, self.Node3.y, self.Node3.z])
         d = np.array([self.Node4.x, self.Node4.y, self.Node4.z])
         return 0.5 * np.linalg.norm(np.cross(c-a, d-b ))
-
-    def getVolume(self):
-        return self.getArea()*self.thickness

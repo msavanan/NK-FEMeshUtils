@@ -1,19 +1,15 @@
-#!/usr/bin/env python
-"""
-python implementation of FE Node
-"""
 class Node:
-    def __init__(self, NodeID, *coord):
+    def __init__(self, NodeID, x, y, z):
         self.NodeID = NodeID
         self.thickness = 0.0
-        self.x = coord[0][0]
-        self.y = coord[0][1]
-        self.z = coord[0][2]
+        self.x = x
+        self.y = y
+        self.z = z
 
-    def setCoord(self,*coord):
-        self.x = coord[0][0]
-        self.y = coord[0][1]
-        self.z = coord[0][2]
+    def setCoord(self, x, y, z):
+        self.x = x
+        self.y = y
+        self.z = z
 
     def setThickness(self, thick):
         self.thickness=thick
@@ -23,6 +19,6 @@ class Node:
 
     def getCoord(self):
         return [self.x, self.y, self.z]
-        
+
     def getThickness(self):
         return self.thickness
