@@ -5,3 +5,5 @@ from Quad import Quad
 from Material import Material
 from Property import Property
 from Part import Part
+from Mesh import Mesh
+from MeshReaders import MeshReaders

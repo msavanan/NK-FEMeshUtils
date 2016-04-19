@@ -12,5 +12,5 @@ setup(
     author = 'N. Klinke',
     author_email = 'niklas.klinke@googlemail.com',
     license = "GPL3",
-    packages = ["FEMeshEntities","FEMeshUtils"]
+    packages = ["NK_FEMeshUtils"]
 )
